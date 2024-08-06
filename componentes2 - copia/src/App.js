@@ -1,7 +1,6 @@
 import './App.css';
 import { useState } from 'react';
 
-
 function App() {
 
 //const [left, setLeft] = useState(0)
@@ -10,29 +9,26 @@ function App() {
 const [counters, setCounters] = useState({
   left : 0,
   right : 0,
+  n : 0,
   mensaje: 'Mensaje en el estado'
 })
 
-const [clicks, setClicks] = useState([])
-
 
 const handleClickLeft = () =>{
-  const newCountersState = {
+  setCounters({
     ...counters,//trae todo lo que tenemos en counters
     left: counters.left+1,
-  };
-  setCounters(newCountersState);
-  setClicks(prevClicks => ([...prevClicks, "L"]))
-};
+    n: counters.n+1
+  })
+}
 
-const handleClickRight = () => {
-  setCounters( {
-    ...counters,//trae todo lo que tenemos en counters
+const handleClickRight = () =>{
+  setCounters({
+    ...counters,//trae todo lo que tenemos en counters(...)
     right: counters.right+1,
-  });
-setClicks((prevClicks) => [...prevClicks, "R"]);
-};
-
+    n: counters.n+1
+  })
+}
 
   return (
     <div>
@@ -43,9 +39,9 @@ setClicks((prevClicks) => [...prevClicks, "R"]);
       <button onClick={handleClickRight}>right</button>
       {counters.right}
       
-      <p>Clicks totales: {clicks.length}</p>
+      <p>{counters.n}</p>
 
-      <p>Clicks:{clicks}</p>
+      <p>{counters.mensaje}</p>
     </div>
   );
 }
