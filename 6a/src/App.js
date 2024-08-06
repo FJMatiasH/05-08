@@ -1,49 +1,59 @@
-import './App.css';
+import { useEffect, useState } from 'react';
+import { Note } from './Note.js';
 
-const notes = [
-  {
-    id: 1,
-    content: 'HTML is easy',
-    date: '2019-05-30',
-    important: true
-  },
-  {
-    id: 2,
-    content: 'HTML',
-    date: '2024-05-30',
-    important: false
-  },
-  {
-    id: 3,
-    content: 'easy',
-    date: '2020-05-30',
-    important: true
-  }
-];
+export default function App(props) {
+const [notes, setNotes] = useState([]);
+const [newNote, setNewNote] = useState('');
+const [loading, setLoading] = useState('');
 
+useEffect(() => {
+  console.log("UseEfect");
+  setLoading(true);
 
-export default function App() {
+    console.log("ahora");
+      fetch('https://jsonplaceholder.typicode.com/posts')
+        .then((response) => response.json())
+        .then(json => {
+        console.log("seteando las notas");
+      setNotes(json)
+      setLoading(false)
+    });
+}, [newNote]);
 
-  //comprueba si hay notas
-  if(!notes || typeof notes === 'undefined'){
-    return"No hay notas"
-  }
+const handleChange = (event) => {
+  setNewNote(event.target.value);
+}
 
-  //devuelve las notas con el map
-  return ( 
+    const handleSubmit = (event) => {
+      event.preventDefault();
+        console.log("crear nota");
+        const noteToAddToState = {
+            id: notes.leght + 1,
+            title: newNote,
+            body: newNote
+          };
+
+        setNotes([...notes, noteToAddToState]);
+        setNewNote("");
+        };
+
+  console.log("render");
+
+  return (
+    <div>
+    <h1>Notes</h1>
+    {
+      loading ? "Cargando..." : ""}
     <ol>
-      {notes.map((note) =>{
-        return (
-          //es importante poner la key en una iteracion
-          <li key={note.id}>  
-            <p>
-              <strong>{note.id}</strong>
-              {note.content}
-              <small><time>{note.date}</time></small>
-            </p>
-          </li>
-      )})
-    }
-    </ol> 
+      {notes.map((note) => (
+        <Note key={note.id} {...note} />
+       ))}
+    </ol>
+
+       <form onSubmit={handleSubmit}>
+        <input type='text' onChange={handleChange} value={newNote}/>
+        <button>Crear nota</button>
+       </form>
+    </div>
   );
 }
