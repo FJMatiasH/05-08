@@ -1,59 +1,61 @@
 import { useEffect, useState } from 'react';
-import { Note } from './Note.js';
+import { Note } from './Note';
+import { NoteForm } from './noteForm';
+import { apiService } from './services/notes/apiService.js';
 
 export default function App(props) {
-const [notes, setNotes] = useState([]);
-const [newNote, setNewNote] = useState('');
-const [loading, setLoading] = useState('');
+  const [notes, setNotes] = useState([]);
+  const [newNote, setNewNote] = useState('');
+  const [loading, setLoading] = useState(false);
 
-useEffect(() => {
-  console.log("UseEfect");
-  setLoading(true);
+  useEffect(() => {
+    setLoading(true);
+    apiService.getNotes()
+      .then((data) => {
+        setNotes(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching notes:', error);
+        setLoading(false);
+      });
+  }, []);
 
-    console.log("ahora");
-      fetch('https://jsonplaceholder.typicode.com/posts')
-        .then((response) => response.json())
-        .then(json => {
-        console.log("seteando las notas");
-      setNotes(json)
-      setLoading(false)
-    });
-}, [newNote]);
+  const handleChange = (event) => {
+    setNewNote(event.target.value);
+  };
 
-const handleChange = (event) => {
-  setNewNote(event.target.value);
-}
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const noteToAdd = {
+      title: newNote,
+      body: newNote
+    };
 
-    const handleSubmit = (event) => {
-      event.preventDefault();
-        console.log("crear nota");
-        const noteToAddToState = {
-            id: notes.leght + 1,
-            title: newNote,
-            body: newNote
-          };
-
-        setNotes([...notes, noteToAddToState]);
+    apiService.createNote(noteToAdd)
+      .then((newNoteFromServer) => {
+        setNotes([...notes, newNoteFromServer]);
         setNewNote("");
-        };
-
-  console.log("render");
+      })
+      .catch((error) => {
+        console.error('Error creating note:', error);
+      });
+  };
 
   return (
     <div>
-    <h1>Notes</h1>
-    {
-      loading ? "Cargando..." : ""}
-    <ol>
-      {notes.map((note) => (
-        <Note key={note.id} {...note} />
-       ))}
-    </ol>
-
-       <form onSubmit={handleSubmit}>
-        <input type='text' onChange={handleChange} value={newNote}/>
-        <button>Crear nota</button>
-       </form>
+      <h1>Notes</h1>
+      {loading ? "Cargando..." : ""}
+      <ol>
+        {notes.map((note) => (
+          <Note key={note.id} {...note} />
+        ))}
+      </ol>
+      <NoteForm 
+        newNote={newNote}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }
